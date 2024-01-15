@@ -604,7 +604,7 @@ class kubernetes (
   String $kubernetes_version                              = '1.10.2',
   String $kubernetes_cluster_name                         = 'kubernetes',
   String $kubernetes_package_version                      = $facts['os']['family'] ? {
-    'Debian' => "${kubernetes_version}-00",
+    'Debian' => "${kubernetes_version}-1.1",
     'RedHat' => $kubernetes::kubernetes_version,
   },
   String $container_runtime                               = 'docker',

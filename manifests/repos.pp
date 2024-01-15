@@ -40,6 +40,7 @@
 #
 class kubernetes::repos (
   String $container_runtime                   = $kubernetes::container_runtime,
+  Optional[String] $kubernetes_version        = $kubernetes::kubernetes_version,
   Optional[String] $kubernetes_apt_location   = $kubernetes::kubernetes_apt_location,
   Optional[String] $kubernetes_apt_release    = $kubernetes::kubernetes_apt_release,
   Optional[String] $kubernetes_apt_repos      = $kubernetes::kubernetes_apt_repos,
@@ -60,16 +61,18 @@ class kubernetes::repos (
 
 ) {
   if $create_repos {
+    $parts = split($kubernetes_version, '[.]')
+    $minor_version = "${parts[0]}.${parts[1]}"
     case $facts['os']['family'] {
       'Debian': {
         $codename = fact('os.distro.codename')
         apt::source { 'kubernetes':
-          location => pick($kubernetes_apt_location,'https://apt.kubernetes.io'),
-          repos    => pick($kubernetes_apt_repos,'main'),
-          release  => pick($kubernetes_apt_release,'kubernetes-xenial'),
+          location => pick($kubernetes_apt_location,"https://pkgs.k8s.io/core:/stable:/v${minor_version}/deb"),
+          repos    => '',
+          release  => pick($kubernetes_apt_release,'/'),
           key      => {
-            'id'     => pick($kubernetes_key_id,'A362B822F6DEDC652817EA46B53DC80D13EDEF05'),
-            'source' => pick($kubernetes_key_source,'https://packages.cloud.google.com/apt/doc/apt-key.gpg'),
+            'id'     => pick($kubernetes_key_id,'DE15B14486CD377B9E876E1A234654DA9A296436'),
+            'source' => pick($kubernetes_key_source,"https://pkgs.k8s.io/core:/stable:/v${minor_version}/deb/Release.key"),
           },
         }
 
