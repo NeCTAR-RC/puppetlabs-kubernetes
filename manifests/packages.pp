@@ -469,7 +469,7 @@ class kubernetes::packages (
       extract         => true,
       extract_command => 'tar xfz %s --strip-components=1 -C /usr/bin/',
       extract_path    => '/',
-      cleanup         => true,
+      cleanup         => false,
       creates         => $containerd_archive_creates,
       notify          => Service['containerd'],
       require         => File[$tmp_directory],
