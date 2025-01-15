@@ -436,19 +436,25 @@ class kubernetes::packages (
       group  => 'root',
     }
 
+    if $containerd_config_source {
+      $_containerd_config_content = undef
+    } else {
+      $_containerd_config_content = stdlib::deferrable_epp($containerd_config_template, {
+          'containerd_plugins_registry' => $containerd_plugins_registry,
+          'containerd_socket' => $containerd_socket,
+          'containerd_sandbox_image' => $containerd_sandbox_image,
+          'docker_cgroup_driver' => $docker_cgroup_driver,
+          'containerd_default_runtime_name' => $containerd_default_runtime_name,
+      })
+    }
     # Generate using 'containerd config default'
     file { '/etc/containerd/config.toml':
       ensure  => file,
       owner   => 'root',
       group   => 'root',
       mode    => '0644',
-      content => stdlib::deferrable_epp('kubernetes/containerd/config.toml.epp', {
-          'containerd_plugins_registry'     => $containerd_plugins_registry,
-          'containerd_socket'               => $containerd_socket,
-          'containerd_sandbox_image'        => $containerd_sandbox_image,
-          'docker_cgroup_driver'            => $docker_cgroup_driver,
-          'containerd_default_runtime_name' => $containerd_default_runtime_name,
-      }),
+      content => $_containerd_config_content,
+      source  => $containerd_config_source,
       require => [File['/etc/containerd'], Archive[$containerd_archive]],
       notify  => Service['containerd'],
     }
