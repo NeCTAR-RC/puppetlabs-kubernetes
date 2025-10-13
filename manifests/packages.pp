@@ -424,6 +424,8 @@ class kubernetes::packages (
       extract         => false,
       cleanup         => false,
       creates         => $runc_source_creates,
+      proxy_server    => $https_proxy,
+      proxy_type      => 'https',
     }
     -> file { '/usr/bin/runc':
       mode => '0700',
@@ -477,6 +479,8 @@ class kubernetes::packages (
       extract_path    => '/',
       cleanup         => false,
       creates         => $containerd_archive_creates,
+      proxy_server    => $https_proxy,
+      proxy_type      => 'https',
       notify          => Service['containerd'],
       require         => File[$tmp_directory],
     }
@@ -502,6 +506,8 @@ class kubernetes::packages (
         extract_path    => '/usr/local/bin',
         cleanup         => true,
         creates         => $etcd_archive_creates,
+        proxy_server    => $https_proxy,
+        proxy_type      => 'https',
         notify          => Service['etcd'],
         require         => File[$tmp_directory],
       }
