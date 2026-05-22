@@ -70,8 +70,8 @@ class kubernetes::repos (
         $codename = fact('os.distro.codename')
         apt::source { 'kubernetes':
           location => pick($kubernetes_apt_location,"https://pkgs.k8s.io/core:/stable:/v${minor_version}/deb"),
-          repos    => '',
-          release  => pick($kubernetes_apt_release,'/'),
+          repos    => ' ',
+          release  => pick($kubernetes_apt_release,' /'),
           key      => {
             'id'     => pick($kubernetes_key_id,'DE15B14486CD377B9E876E1A234654DA9A296436'),
             'source' => pick($kubernetes_key_source,"https://pkgs.k8s.io/core:/stable:/v${minor_version}/deb/Release.key"),
