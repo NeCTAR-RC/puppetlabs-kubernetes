@@ -738,7 +738,7 @@ Defaults to  `1.10.2`.
 
 The version the Kubernetes OS packages to install, such as `kubectl` and `kubelet`.
 
-Defaults to `1.10.2`.
+Defaults to `${kubernetes_version}-1.1` on Debian (the package revision used by pkgs.k8s.io) and `${kubernetes_version}` on RedHat.
 
 #### `kubeadm_extra_config`
 

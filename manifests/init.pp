@@ -18,7 +18,8 @@
 # [*kubernetes_package_version*]
 #   The version of the packages the Kubernetes os packages to install
 #   ie kubectl and kubelet
-#   Defaults to 1.10.2
+#   Defaults to "${kubernetes_version}-1.1" on Debian (the pkgs.k8s.io
+#   package revision) and "${kubernetes_version}" on RedHat
 #
 # [*container_runtime*]
 #   This is the runtime that the Kubernetes cluster will use.
@@ -607,7 +608,7 @@ class kubernetes (
   String $kubernetes_version                              = '1.32.0',
   String $kubernetes_cluster_name                         = 'kubernetes',
   String $kubernetes_package_version                      = $facts['os']['family'] ? {
-    'Debian' => "${kubernetes_version}-00",
+    'Debian' => "${kubernetes_version}-1.1",
     'RedHat' => $kubernetes::kubernetes_version,
   },
   String $container_runtime                               = 'docker',
