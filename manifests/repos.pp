@@ -4,19 +4,23 @@
 #   This is the runtime that the Kubernetes cluster will use.
 #   It can only be set to "cri_containerd" or "docker". Defaults to cri_containerd
 # @param kubernetes_apt_location
-#   The APT repo URL for the Kubernetes packages. Defaults to https://apt.kubernetes.io
+#   The APT repo URL for the Kubernetes packages.
+#   Defaults to https://pkgs.k8s.io/core:/stable:/v<major.minor>/deb/ derived from kubernetes_version
 # @param kubernetes_apt_release
-#   The release name for the APT repo for the Kubernetes packages. Defaults to 'kubernetes-${facts.os.distro.codename}'
+#   The release name for the APT repo for the Kubernetes packages. Defaults to ' /' (flat repo)
 # @param kubernetes_apt_repos
-#   The repos to install from the Kubernetes APT url. Defaults to main
+#   The repos to install from the Kubernetes APT url. Defaults to ' ' (flat repo)
 # @param kubernetes_key_id
 #   The gpg key for the Kubernetes APT repo. Defaults to '54A647F9048D5688D7DA2ABE6A030B21BA07F4FB'
 # @param kubernetes_key_source
-#   The URL for the APT repo gpg key. Defaults to https://packages.cloud.google.com/apt/doc/apt-key.gpg
+#   The URL for the APT repo gpg key.
+#   Defaults to https://pkgs.k8s.io/core:/stable:/v<major.minor>/deb/Release.key derived from kubernetes_version
 # @param kubernetes_yum_baseurl
-#   The YUM repo URL for the Kubernetes packages. Defaults to https://download.docker.com/linux/centos/
+#   The YUM repo URL for the Kubernetes packages.
+#   Defaults to https://pkgs.k8s.io/core:/stable:/v<major.minor>/rpm/ derived from kubernetes_version
 # @param kubernetes_yum_gpgkey
-#   The URL for the Kubernetes yum repo gpg key. Defaults to https://download.docker.com/linux/centos/gpg
+#   The URL for the Kubernetes yum repo gpg key.
+#   Defaults to https://pkgs.k8s.io/core:/stable:/v<major.minor>/rpm/repodata/repomd.xml.key derived from kubernetes_version
 # @param docker_apt_location
 #   The APT repo URL for the Docker packages. Defaults to https://apt.dockerproject.org/repo
 # @param docker_apt_release
@@ -60,19 +64,23 @@ class kubernetes::repos (
 
 ) inherits kubernetes {
   if $create_repos {
-    $k8s_core_package_version = kubernetes::kubernetes_version.split('.')[0,1].join('.')
+    # pkgs.k8s.io publishes one repo per Kubernetes minor release, e.g.
+    # https://pkgs.k8s.io/core:/stable:/v1.36/deb/
+    $k8s_version_parts = split($kubernetes::kubernetes_version, '[.]')
+    $k8s_core_package_version = "${k8s_version_parts[0]}.${k8s_version_parts[1]}"
+    $k8s_pkgs_location = "https://pkgs.k8s.io/core:/stable:/v${k8s_core_package_version}"
     case $facts['os']['family'] {
       'Debian': {
         $codename = fact('os.distro.codename')
-        $k8s_apt_location = "${kubernetes::kubernetes_apt_location}/v${k8s_core_package_version}"
         apt::source { 'kubernetes':
-          location => pick($kubernetes_apt_location, "${k8s_apt_location}/deb/"),
+          location => pick($kubernetes_apt_location, "${k8s_pkgs_location}/deb/"),
           repos    => pick($kubernetes_apt_repos, ' '),
           release  => pick($kubernetes_apt_release, ' /'),
           comment  => 'Kubernetes',
           key      => {
-            'name'   => 'kubernetes-apt-keyring.gpg',
-            'source' => pick($kubernetes_key_source, "${$k8s_apt_location}/deb/Release.key"),
+            # Release.key is ASCII armoured; apt only dearmors keyrings named *.asc
+            'name'   => 'kubernetes-apt-keyring.asc',
+            'source' => pick($kubernetes_key_source, "${k8s_pkgs_location}/deb/Release.key"),
           },
         }
 
@@ -100,11 +108,10 @@ class kubernetes::repos (
           }
         }
 
-        $k8s_yum_location = "${kubernetes::kubernetes_yum_baseurl}/v${k8s_core_package_version}"
         yumrepo { 'kubernetes':
           descr    => 'Kubernetes',
-          baseurl  => pick($kubernetes_yum_baseurl, "${k8s_yum_location}/rpm/"),
-          gpgkey   => pick($kubernetes_yum_gpgkey, "${k8s_yum_location}/rpm/repodata/repomd.xml.key"),
+          baseurl  => pick($kubernetes_yum_baseurl, "${k8s_pkgs_location}/rpm/"),
+          gpgkey   => pick($kubernetes_yum_gpgkey, "${k8s_pkgs_location}/rpm/repodata/repomd.xml.key"),
           gpgcheck => true,
         }
       }

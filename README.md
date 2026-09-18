@@ -762,19 +762,19 @@ Defaults to `[]`.
 
 The APT repo URL for the Kubernetes packages.
 
-Defaults to `https://apt.kubernetes.io`.
+Defaults to `https://pkgs.k8s.io/core:/stable:/v<major.minor>/deb/`, where `<major.minor>` is derived from `kubernetes_version`.
 
 #### `kubernetes_apt_release`
 
 The release name for the APT repo for the Kubernetes packages.
 
-Defaults to `'kubernetes-${::lsbdistcodename}'`.
+Defaults to `' /'` (pkgs.k8s.io is a flat repo).
 
 #### `kubernetes_apt_repos`
 
 The repos to install using the Kubernetes APT URL.
 
-Defaults to `main`.
+Defaults to `' '` (pkgs.k8s.io is a flat repo).
 
 #### `kubernetes_key_id`
 
@@ -786,7 +786,7 @@ Defaults to `'54A647F9048D5688D7DA2ABE6A030B21BA07F4FB'`.
 
 The URL for the APT repo gpg key.
 
-Defaults to `https://packages.cloud.google.com/apt/doc/apt-key.gpg`.
+Defaults to `https://pkgs.k8s.io/core:/stable:/v<major.minor>/deb/Release.key`, where `<major.minor>` is derived from `kubernetes_version`.
 
 #### `kubelet_use_proxy`
 
@@ -800,13 +800,13 @@ Defaults to `false`.
 
 The YUM repo URL for the Kubernetes packages.
 
-Defaults to `https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64`.
+Defaults to `https://pkgs.k8s.io/core:/stable:/v<major.minor>/rpm/`, where `<major.minor>` is derived from `kubernetes_version`.
 
 #### `kubernetes_yum_gpgkey`
 
 The URL for the Kubernetes yum repo gpg key.
 
-Defaults to `https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg`.
+Defaults to `https://pkgs.k8s.io/core:/stable:/v<major.minor>/rpm/repodata/repomd.xml.key`, where `<major.minor>` is derived from `kubernetes_version`.
 
 #### `manage_docker`
 

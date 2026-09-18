@@ -406,15 +406,15 @@
 #
 # [*kubernetes_apt_location*]
 #  The APT repo URL for the Kubernetes packages.
-#  Defaults to https://apt.kubernetes.io
+#  Defaults to https://pkgs.k8s.io/core:/stable:/v<major.minor>/deb/ derived from kubernetes_version
 #
 # [*kubernetes_apt_release*]
 #  The release name for the APT repo for the Kubernetes packages.
-#  Defaults to 'kubernetes-${facts.os.distro.codename}'
+#  Defaults to ' /' (flat repo)
 #
 # [*kubernetes_apt_repos*]
 #  The repos to install from the Kubernetes APT url
-#  Defaults to main
+#  Defaults to ' ' (flat repo)
 #
 # [*kubernetes_key_id*]
 #  The gpg key for the Kubernetes APT repo
@@ -422,15 +422,15 @@
 #
 # [*kubernetes_key_source*]
 #  The URL for the APT repo gpg key
-#  Defaults to https://packages.cloud.google.com/apt/doc/apt-key.gpg
+#  Defaults to https://pkgs.k8s.io/core:/stable:/v<major.minor>/deb/Release.key derived from kubernetes_version
 #
 # [*kubernetes_yum_baseurl*]
 #  The YUM repo URL for the Kubernetes packages.
-#  Defaults to https://download.docker.com/linux/centos/
+#  Defaults to https://pkgs.k8s.io/core:/stable:/v<major.minor>/rpm/ derived from kubernetes_version
 #
 # [*kubernetes_yum_gpgkey*]
 #  The URL for the Kubernetes yum repo gpg key
-#  Defaults to https://download.docker.com/linux/centos/gpg
+#  Defaults to https://pkgs.k8s.io/core:/stable:/v<major.minor>/rpm/repodata/repomd.xml.key derived from kubernetes_version
 #
 # [*docker_apt_location*]
 #  The APT repo URL for the Docker packages

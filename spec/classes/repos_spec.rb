@@ -48,7 +48,7 @@ describe 'kubernetes::repos', type: :class do
         location: 'https://pkgs.k8s.io/core:/stable:/v1.32/deb/',
         repos: ' ',
         release: ' /',
-        key: { 'name' => 'kubernetes-apt-keyring.gpg', 'source' => 'https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key' },
+        key: { 'name' => 'kubernetes-apt-keyring.asc', 'source' => 'https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key' },
       )
     }
 
@@ -109,7 +109,7 @@ describe 'kubernetes::repos', type: :class do
         location: 'https://pkgs.k8s.io/core:/stable:/v1.32/deb/',
         repos: ' ',
         release: ' /',
-        key: { 'name' => 'kubernetes-apt-keyring.gpg', 'source' => 'https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key' },
+        key: { 'name' => 'kubernetes-apt-keyring.asc', 'source' => 'https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key' },
       )
     }
 
@@ -210,5 +210,80 @@ describe 'kubernetes::repos', type: :class do
 
     it { is_expected.to contain_yumrepo('docker') }
     it { is_expected.to contain_yumrepo('kubernetes') }
+  end
+
+  context 'with osfamily => Ubuntu and default repo locations' do
+    let(:facts) do
+      {
+        osfamily: 'Debian', # needed to run dependent tests from fixtures puppetlabs-apt
+        kernel: 'Linux',
+        os: {
+          family: 'Debian',
+          name: 'Ubuntu',
+          release: {
+            full: '16.04'
+          },
+          distro: {
+            codename: 'xenial'
+          }
+        }
+      }
+    end
+    let(:params) do
+      {
+        'container_runtime' => 'cri_containerd',
+        'containerd_install_method' => 'archive',
+        'create_repos' => true,
+        'manage_docker' => false
+      }
+    end
+
+    # kubernetes::kubernetes_version defaults to 1.32.x, so the repo must be v1.32
+    it {
+      is_expected.to contain_apt__source('kubernetes').with(
+        ensure: 'present',
+        location: 'https://pkgs.k8s.io/core:/stable:/v1.32/deb/',
+        repos: ' ',
+        release: ' /',
+        key: { 'name' => 'kubernetes-apt-keyring.asc', 'source' => 'https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key' },
+      )
+    }
+
+    it { is_expected.not_to contain_apt__source('docker') }
+  end
+
+  context 'with osfamily => RedHat and default repo locations' do
+    let(:facts) do
+      {
+        operatingsystem: 'RedHat',
+        osfamily: 'RedHat',
+        operatingsystemrelease: '7.0',
+        kernel: 'Linux',
+        os: {
+          family: 'RedHat',
+          name: 'RedHat',
+          release: {
+            full: '7.0'
+          }
+        }
+      }
+    end
+    let(:params) do
+      {
+        'container_runtime' => 'cri_containerd',
+        'containerd_install_method' => 'archive',
+        'create_repos' => true,
+        'manage_docker' => false
+      }
+    end
+
+    it {
+      is_expected.to contain_yumrepo('kubernetes').with(
+        baseurl: 'https://pkgs.k8s.io/core:/stable:/v1.32/rpm/',
+        gpgkey: 'https://pkgs.k8s.io/core:/stable:/v1.32/rpm/repodata/repomd.xml.key',
+      )
+    }
+
+    it { is_expected.not_to contain_yumrepo('docker') }
   end
 end
